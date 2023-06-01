@@ -1,0 +1,365 @@
+:root {
+    --header1-Font: 'montserratmedium';
+    --sideBar-Header-Font: 'ralewaysemibold';
+    --sideBar-Font: 'ralewayregular';
+    --content-Font: 'latoregular';
+    font-size: 16px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* FONTS */
+
+@font-face {
+    font-family: 'montserratmedium';
+    src: url('./assets/fonts/montserrat-medium-webfont.woff2') format('woff2'),
+         url('./assets/fonts/montserrat-medium-webfont.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'ralewaysemibold';
+    src: url('./assets/fonts/raleway-semibold-webfont.woff2') format('woff2'),
+         url('./assets/fonts/raleway-semibold-webfont.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'ralewayregular';
+    src: url('./assets/fonts/raleway-regular-webfont.woff2') format('woff2'),
+         url('./assets/fonts/raleway-regular-webfont.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'latoregular';
+    src: url('./assets/fonts/lato-regular-webfont.woff2') format('woff2'),
+         url('./assets/fonts/lato-regular-webfont.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'lato_hairlineregular';
+    src: url('./assets/fonts/lato-thin-webfont.woff2') format('woff2'),
+         url('./assets/fonts/lato-thin-webfont.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+
+}
+
+
+
+/* PAGE */
+
+body {
+    margin: 0;
+    min-height: 100vh;
+}
+
+header {
+    background-color: #4682b4;
+    color: ghostwhite;
+    font-family: var(--header1-Font);
+    padding: 15px;
+}
+
+#headerContent {
+    margin-left: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#headerContent img {
+    width: 75px;
+    height: auto;
+}
+
+h1 {
+    margin: 0;
+    font-size: 2.5rem;
+}
+
+main {
+    display: flex;
+    min-height: 100vh;
+}
+
+button {
+    background-color: transparent;
+    border: none;
+    font-size: 1.2rem;
+}
+
+
+
+/* SIDEBAR */
+
+#sideBar {
+    background-color: #87ceeb;
+    color: #373737;
+    width: 22%;
+    padding: 15px;
+}
+
+nav {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.navImg {
+    width: 35px;
+    height: auto;
+}
+
+.navBtn {
+    font-family: var(--sideBar-Font);
+    display: flex;
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    padding: 5px;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.navBtn button {
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.navBtn:hover {
+    background-color: #4d9cd1;
+}
+
+.projectBtn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.projectBtn div {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.projectBtn img {
+    width: 35px;
+    height: auto;
+}
+
+.projectBtn img:nth-child(2) {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.projectBtn:hover img:nth-child(2) {
+    opacity: 1;
+}
+
+.selected {
+    background-color: #4d9cd1;
+}
+
+.bold {
+    font-weight: 600;
+}
+
+#sideBar h2 {
+    font-family: var(--sideBar-Header-Font);
+}
+
+
+
+/* CONTENT */
+
+#contentContainer {
+    background-color: #dcdcdc;
+    color: #333333;
+    width: 78%;
+    padding: 15px;
+}
+
+#content {
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+#content h2 {
+    font-family: var(--content-Font);
+    font-size: 2rem;
+}
+
+.addTask {
+    display: flex;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    padding: 5px;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.addTask button {
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.addTask:hover {
+    background-color: #c6c6c6;
+}
+
+.addTask img {
+    width: 35px;
+    height: auto;
+}
+
+#content button {
+    font-family: var(--content-Font);
+}
+
+.taskForm {
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+}
+
+.taskForm input {
+    height: 50px;
+    border: 1px solid #888888;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 1rem;
+}
+
+.taskForm input:focus {
+    outline: none;
+}
+
+.formBtns {
+    height: 50px;
+    justify-content: space-between;
+    gap: 25px;
+}
+
+.formBtns button {
+    height: 50px;
+    border-radius: 5px;
+    flex: 1;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.addBtn {
+    background-color: #4caf50;
+    border: 1px solid #4caf50;
+}
+
+.addBtn:hover {
+    background-color: #66DE70;
+}
+
+.cancelBtn {
+    background-color: #ff5252;
+    border: 1px solid #ff5252;
+}
+
+.cancelBtn:hover {
+    background-color: #ff7575;
+}
+
+footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #4682b4;
+    color: ghostwhite;
+    font-family: var(--header1-Font);
+    padding: 5px;
+}
+
+#footerContent {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+}
+
+#footerImg {
+    width: 35px;
+    height: auto;
+}
+
+#footerImg:hover {
+    opacity: 0.5;
+}
+
+
+/* TASK STYLES */
+.task {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.task div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.task div:first-child p {
+    font-family: var(--content-Font);
+    font-size: 1.2rem;
+}
+
+input[type="date"] {
+    appearance: none;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    color: #333333;
+    background-color: #ffffff;
+    cursor: pointer;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-calender-picker-indicator {
+    display: none;
+}
+
+input[type="date"]:focus {
+    outline: none;
+    border-color: #4d9cd1;
+}
+
+input[type="date"]::placeholder {
+    color: #999999;
+}
+
+.checkBox {
+    width: 25px;
+    height: 25px;
+    border: 2px solid #333333;
+    border-radius: 50%;
+}
+
+.task img {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.task:hover img {
+    opacity: 1;
+}
