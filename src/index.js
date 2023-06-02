@@ -1,3 +1,14 @@
+//todos should be dynamically created objects using factories or constructors/classes
+//each todo item should have a title, description, dueDate, and priority 
+//add ability to create projects which act as container that can house a list of todos
+//a default project should be selected for the user on page load
+
+//class to create new todos
+//class to assign a completion date to each todo item
+//class to change priority of todo item
+//class to set todos as complete
+//use localstorage to allow data to be saved on the users computer
+
 /* IMPORTS */
 
 import './style.css';
@@ -15,24 +26,163 @@ import trash from './assets/images/trash.svg';
 
 const content = document.getElementById('content');
 const contentHeader = document.getElementById('contentHeader');
+/*
 let inboxTaskList = document.createElement('div');
+inboxTaskList.setAttribute('class', 'taskList');
+*/
 const sideBar = document.getElementById('sideBar');
 const logo = document.getElementById('logo');
 const contentImg = document.getElementById('contentImg');
 const footerImg = document.getElementById('footerImg');
-
-//todos should be dynamically created objects using factories or constructors/classes
-//each todo item should have a title, description, dueDate, and priority 
-//add ability to create projects which act as container that can house a list of todos
-//a default project should be selected for the user on page load
-
-//class to create new todos
-//class to assign a completion date to each todo item
-//class to change priority of todo item
-//class to set todos as complete
-//use localstorage to allow data to be saved on the users computer
+const addTask = document.getElementById('addTask');
+let taskListStorage = [];
+let projectId = "";
+createTaskList('inbox');
 
 
+
+/* FUNCTIONS */
+
+function hideTaskForm() {
+    taskInput.value = "";
+    taskForm.style.display = "none";
+    addTask.style.display = "flex";
+}
+
+function hideProjectForm() {
+    projectInput.value = "";
+    projectForm.style.display = "none";
+    addProject.style.display = "flex";
+    addProject.classList.remove('selected');
+    addProject.querySelector('button').classList.remove('bold');
+}
+
+function revealTaskForm() {
+    addTask.style.display = "none";
+    taskForm.style.display = "flex";
+    taskInput.style.display = "initial";
+    formBtns.style.display = "flex";
+}
+
+function revealProjectForm() {
+    addProject.style.display = "none";
+    projectForm.style.display = "flex";
+    projectInput.style.display = "initial";
+    projectBtns.style.display = "flex";
+    projectInput.value = "";
+}
+
+function createTask() {
+    //loop through the taskList array
+    //until it finds one with its display property set to initial
+    //append the task to the only list with display: initial
+    if (taskInput.value === '') {
+        alert('Must enter a task.');
+      } else {
+        taskForm.style.display = 'none';
+        addTask.style.display = 'flex';
+        const task = document.createElement('div');
+        const taskLeftPanel = document.createElement('div');
+        const taskRightPanel = document.createElement('div');
+        const taskCheckBox = document.createElement('span');
+        const taskName = document.createElement('p');
+        const taskDate = document.createElement('input');
+        const deleteTask = document.createElement('img');
+        
+
+        task.classList.add('addTask', 'task');
+        taskCheckBox.classList.add('checkBox');
+        taskName.textContent = taskInput.value;
+        taskDate.setAttribute('type', 'date');
+        deleteTask.setAttribute('src', trash);
+        for (let i = 0; i < taskListStorage.length; i++) {
+            if (taskListStorage[i].style.display === 'initial') {
+                taskListStorage[i].appendChild(task);
+            } else {
+                // do nothing
+            }
+        }
+        task.appendChild(taskLeftPanel);
+        task.appendChild(taskRightPanel);
+        taskLeftPanel.appendChild(taskCheckBox);
+        taskLeftPanel.appendChild(taskName);
+        taskRightPanel.appendChild(taskDate);
+        taskRightPanel.appendChild(deleteTask);
+        taskInput.value = '';
+    
+        taskCheckBox.addEventListener('click', () => {
+          taskCheckBox.style.backgroundColor = taskCheckBox.style.backgroundColor === 'rgb(76, 175, 80)' ? 'transparent' : 'rgb(76, 175, 80)';
+        });
+    
+        deleteTask.addEventListener('click', () => {
+          task.remove();
+        });
+      }
+}
+
+function createProject() {
+    if (projectInput.value === '') {
+        alert('You must name your project.');
+      } else {
+        const project = document.createElement('div');
+        project.classList.add('navBtn', 'projectBtn');
+        const projectLeft = document.createElement('div');
+        const projectImg = document.createElement('img');
+        projectImg.setAttribute('src', checklist);
+        const projectText = document.createElement('button');
+        projectText.textContent = projectInput.value;
+        const deleteProject = document.createElement('img');
+        deleteProject.setAttribute('src', trash);
+    
+        project.appendChild(projectLeft);
+        project.appendChild(deleteProject);
+        projectLeft.appendChild(projectImg);
+        projectLeft.appendChild(projectText);
+        projectForm.style.display = 'none';
+        sideBar.insertBefore(project, addProject);
+        addProject.style.display = 'flex';
+        addProject.classList.remove('selected');
+        addProject.querySelector('button').classList.remove('bold');
+        navBtns = getNavBtns();
+        updateLoop();
+        project.setAttribute("id", projectInput.value);
+        createTaskList(projectInput.value);
+
+        deleteProject.addEventListener('click', () => {
+          project.classList.add('delete');
+          project.remove();
+          //loops through task Lists and deletes the one that correlates with the deleted project
+          for (let i = 0; i < taskListStorage.length; i++) {
+            if (taskListStorage[i].id.includes(projectId)) {
+                taskListStorage[i].remove();
+            }
+          } 
+        });
+      }
+}
+
+//creates a new taskList based on the selected project in the createProject function
+function createTaskList(projectId) {
+    const taskList = document.createElement('div');
+    taskList.classList.add('taskList');
+    taskList.setAttribute('id', `taskList_${projectId}`);
+    if (projectId === 'inbox') {
+        taskList.style.display = 'initial';
+    } else {
+        // do nothing
+    }
+    //append the task list to the task container
+    content.insertBefore(taskList, addTask);
+    taskListStorage.push(taskList);
+}
+
+
+
+
+////FIND OUT HOW TO ACCESS PROJECT ID VARIABLE IN SHOWTASKLIST FUNCTION////
+////CREATETASKLIST FUNCTION IS CALLED INSIDE THE CREATEPROJECT FUNCTION////
+////SO A UNIQUE TASK LIST IS CREATED EVERYTIME A NEW FUNCTION IS CREATED////
+////SHOWTASKLIST FUNCTION MUST BE CALLED INSIDE UPDATELOOP FUNCTION WHEN A PROJECT IS SELECTED////
 
 
 /* IMAGE LAYOUT */
@@ -61,7 +211,7 @@ imageElements.forEach((imageElement, index) => {
 
 
 /* CREATING & APPENDING ELEMENTS */
-content.insertBefore(inboxTaskList, document.getElementById('addTask'));
+//content.insertBefore(inboxTaskList, document.getElementById('addTask'));
 
 //accesses all elements with the class navBtn dynamically
 function getNavBtns() {
@@ -69,20 +219,18 @@ function getNavBtns() {
 }
 let navBtns = getNavBtns();
 
-//accesses all eements with the class inboxTasks and hides them if the user isnt on the inbox tab
-function getInboxTasks() {
-    return document.querySelectorAll('.inboxTask');
+//accesses all taskLists and returns them
+function getTaskLists() {
+    return document.querySelectorAll('.taskList');
 }
-let inboxTasks = getInboxTasks();
+let taskLists = getTaskLists();
 
-function updateInboxTasks() {
-    inboxTasks.forEach(task => {
-        if (document.querySelector("#inbox").classList.contains("selected")) {
-            task.style.display = "flex";
-        } else {
-            task.style.display = "none";
-        }
-    }); 
+//updates to recieve any new taskLists that were created and hides them all
+function hideAllTaskLists() {
+    taskLists = getTaskLists();
+    taskLists.forEach(taskList => {
+        taskList.style.display = 'none';
+    });
 }
 
 
@@ -107,8 +255,14 @@ function updateLoop() {
                 projectForm.style.display = "none";
                 addProject.style.display = "flex";
                 addTask.style.display = "flex";
-                inboxTasks = getInboxTasks();
-                updateInboxTasks();
+                hideAllTaskLists();
+                for (let i = 0; i < taskListStorage.length; i++) {
+                    if (taskListStorage[i].id.includes('inbox')) {
+                        taskListStorage[i].style.display = "initial";
+                    } else {
+                        taskListStorage[i].style.display = "none";
+                    }
+                }
             } else if (navBtn.getAttribute("id") == "today") {
                 contentHeader.textContent = "Today"
                 contentHeader.style.display = "initial";
@@ -117,6 +271,7 @@ function updateLoop() {
                 projectForm.style.display = "none";
                 addProject.style.display = "flex";
                 taskInput.value = "";
+                hideAllTaskLists();
             } else if (navBtn.getAttribute("id") == "thisweek") {
                 contentHeader.textContent = "This Week";
                 contentHeader.style.display = "initial";
@@ -125,13 +280,20 @@ function updateLoop() {
                 projectForm.style.display = "none";
                 addProject.style.display = "flex";
                 taskInput.value = "";
+                hideAllTaskLists();
             } else if (navBtn.classList.contains('projectBtn')) {
                 contentHeader.textContent = navBtn.querySelector('button').textContent;
                 navBtns = getNavBtns();
                 updateLoop();
-                inboxTasks = getInboxTasks();
-                updateInboxTasks();
-                //if navBtn already has selected class 
+                hideAllTaskLists();
+                projectId = navBtn.getAttribute('id');
+                for (let i = 0; i < taskListStorage.length; i++) {
+                    if (taskListStorage[i].id.includes(projectId)) {
+                        taskListStorage[i].style.display = "initial";
+                    } else {
+                        taskListStorage[i].style.display = "none";
+                    }
+                }
                 if (navBtn.classList.contains('delete')) {
                     addTask.style.display = "none";
                     contentHeader.style.display = "none";
@@ -148,34 +310,34 @@ updateLoop();
 
 //button that reveals a prompt to add a task to the page
 //div that holds input and div which holds both buttons
-const addTask = document.getElementById('addTask');
+
 const taskForm = document.createElement('div');
 const formBtns = document.createElement('div');
-formBtns.setAttribute("class", "formBtns");
-content.appendChild(taskForm);
-taskForm.setAttribute("class", "taskForm");
-taskForm.style.display = "none";
 const taskInput = document.createElement('input');
-taskForm.appendChild(taskInput);
-taskInput.style.display = "none";
-taskInput.setAttribute("type", "text");
-taskForm.appendChild(formBtns);
-formBtns.style.display = "none";
 const addBtn = document.createElement('button');
-addBtn.setAttribute("class", "addBtn");
-addBtn.textContent = "Add";
-formBtns.appendChild(addBtn);
 const cancelBtn = document.createElement('button');
-cancelBtn.setAttribute("class", "cancelBtn");
-cancelBtn.textContent = "Cancel";
+
+taskForm.classList.add('taskForm');
+taskForm.style.display = 'none';
+taskInput.setAttribute('type', 'text');
+taskInput.style.display = 'none';
+formBtns.classList.add('formBtns');
+formBtns.style.display = 'none';
+addBtn.classList.add('addBtn');
+addBtn.textContent = 'Add';
+cancelBtn.classList.add('cancelBtn');
+cancelBtn.textContent = 'Cancel';
+
+taskForm.appendChild(taskInput);
+formBtns.appendChild(addBtn);
 formBtns.appendChild(cancelBtn);
+taskForm.appendChild(formBtns);
+content.appendChild(taskForm);
+
 
 
 addTask.addEventListener('click', () => {
-    addTask.style.display = "none";
-    taskForm.style.display = "flex";
-    taskInput.style.display = "initial";
-    formBtns.style.display = "flex";
+    revealTaskForm();
 });
 
 
@@ -185,97 +347,44 @@ addTask.addEventListener('click', () => {
 const addProject = document.getElementById('addProject');
 const projectForm = document.createElement('div');
 const projectBtns = document.createElement('div');
-projectBtns.setAttribute("class", "formBtns");
-sideBar.appendChild(projectForm);
-projectForm.setAttribute("class", "taskForm");
-projectForm.style.display = "none";
 const projectInput = document.createElement('input');
-projectForm.appendChild(projectInput);
-projectInput.style.display = "none";
-projectInput.setAttribute("type", "text");
-projectForm.appendChild(projectBtns);
-projectBtns.style.display = "none";
 const projectAddBtn = document.createElement('button');
-projectAddBtn.setAttribute("class", "addBtn");
-projectAddBtn.textContent = "Add";
-projectBtns.appendChild(projectAddBtn);
 const projectCancelBtn = document.createElement('button');
-projectCancelBtn.setAttribute("class", "cancelBtn");
-projectCancelBtn.textContent = "Cancel";
+
+projectForm.classList.add('taskForm');
+projectForm.style.display = 'none';
+projectInput.setAttribute('type', 'text');
+projectInput.style.display = 'none';
+projectBtns.classList.add('formBtns');
+projectBtns.style.display = 'none';
+projectAddBtn.classList.add('addBtn');
+projectAddBtn.textContent = 'Add';
+projectCancelBtn.classList.add('cancelBtn');
+projectCancelBtn.textContent = 'Cancel';
+
+projectForm.appendChild(projectInput);
+projectBtns.appendChild(projectAddBtn);
 projectBtns.appendChild(projectCancelBtn);
+projectForm.appendChild(projectBtns);
+sideBar.appendChild(projectForm);
+
 
 addProject.addEventListener('click', () => {
-    addProject.style.display = "none";
-    projectForm.style.display = "flex";
-    projectInput.style.display = "initial";
-    projectBtns.style.display = "flex";
-    projectInput.value = "";
+    revealProjectForm();
 });
 
 addBtn.addEventListener('click', () => {
-    if (taskInput.value == "") {
-        alert("Must enter a task.");
-    } else {
-        taskForm.style.display = "none";
-        addTask.style.display = "flex";
-        const task = document.createElement("div");
-        const taskLeftPanel = document.createElement("div");
-        const taskRightPanel = document.createElement("div");
-        const taskCheckBox = document.createElement("span");
-        const taskName = document.createElement("p");
-        const taskDate = document.createElement("input");
-        const deleteTask = document.createElement("img");
-        task.setAttribute("class", "addTask");
-        task.classList.add("task");
-        if (document.querySelector('#inbox').classList.contains('selected')) {
-            task.classList.add('inboxTask');
-        } else {
-            //do nothing
-        }
-        taskCheckBox.setAttribute("class", "checkBox");
-        taskName.textContent = taskInput.value;
-        taskDate.setAttribute("type", "date");
-        deleteTask.setAttribute("src", trash);
-        content.appendChild(task, addTask);
-        task.appendChild(taskLeftPanel);
-        task.appendChild(taskRightPanel);
-        taskLeftPanel.appendChild(taskCheckBox);
-        taskLeftPanel.appendChild(taskName);
-        taskRightPanel.appendChild(taskDate);
-        taskRightPanel.appendChild(deleteTask);
-        taskInput.value = "";
-
-        
-
-        taskCheckBox.addEventListener('click', () => {
-            if (taskCheckBox.style.backgroundColor == "rgb(76, 175, 80)") {
-                console.log();
-                taskCheckBox.style.backgroundColor = "transparent"
-            } else {
-                taskCheckBox.style.backgroundColor = "rgb(76, 175, 80)";
-            }
-        });
-
-        //click event on task trash image to delete the task from the list
-        deleteTask.addEventListener('click', () => {
-            task.remove();
-        });
-    }
+    createTask();
 });
+  
 
 //when the cancel task or project button is clicked it hides the form 
 cancelBtn.addEventListener('click', () => {
-    taskInput.value = "";
-    taskForm.style.display = "none";
-    addTask.style.display = "flex";
+    hideTaskForm();
 });
 
 projectCancelBtn.addEventListener('click', () => {
-    projectInput.value = "";
-    projectForm.style.display = "none";
-    addProject.style.display = "flex";
-    addProject.classList.remove('selected');
-    addProject.querySelector('button').classList.remove('bold');
+    hideProjectForm();
 });
 
 //project add button onclick(as long as thers text in the input field)
@@ -283,47 +392,9 @@ projectCancelBtn.addEventListener('click', () => {
 //append the img and button element as children to the container div
 //append the container div to sideBar 
 projectAddBtn.addEventListener('click', () => {
-    if (projectInput.value == "") {
-        alert("You must name your project.");
-    } else {
-        const project = document.createElement('div');
-        project.setAttribute("class", "navBtn");
-        project.classList.add("projectBtn");
-        const projectLeft = document.createElement('div');
-        const projectImg = document.createElement('img');
-        projectImg.setAttribute("src", checklist);
-        const projectText = document.createElement('button');
-        projectText.textContent = projectInput.value;
-        const deleteProject = document.createElement('img');
-        deleteProject.setAttribute("src", trash);
-        project.appendChild(projectLeft);
-        project.appendChild(deleteProject);
-        projectLeft.appendChild(projectImg);
-        projectLeft.appendChild(projectText);
-        projectForm.style.display = "none";
-        sideBar.insertBefore(project, addProject);
-        addProject.style.display = "flex";
-        addProject.classList.remove('selected');
-        addProject.querySelector('button').classList.remove('bold');
-
-        //everytime a new project is created, updated the navBtns nodelist and run the forEach loop again
-        navBtns = getNavBtns();
-        updateLoop();
-
-        //click event on project trash image to delete the project from the list
-        deleteProject.addEventListener('click', () => {
-            project.classList.add('delete');
-            project.remove();
-        });
-    }
+    createProject();
 });
-
-//add a special class to tasks depending on which section they were created under
-//when a new section is selected, change display to none on all of the tasks 
-//created from other sections 
+  
 
 
-//getting project tasks is a bit trickier 
-//first you have to set a special class to each project
-//the class should equal "project"+"-"+projectInput.value
-//
+//EVEYRTHING WORKS, JUST MAKE SURE TO DELETE TASK LISTS IF THEIR CORRESPONDING PROJECT IS DELETED
