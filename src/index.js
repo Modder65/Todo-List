@@ -1,17 +1,8 @@
-//todos should be dynamically created objects using factories or constructors/classes
-//each todo item should have a title, description, dueDate, and priority 
-//add ability to create projects which act as container that can house a list of todos
-//a default project should be selected for the user on page load
-
-//class to create new todos
-//class to assign a completion date to each todo item
-//class to change priority of todo item
-//class to set todos as complete
-//use localstorage to allow data to be saved on the users computer
-
 /* IMPORTS */
 
 import './style.css';
+import { isToday, isThisWeek, parseISO} from 'date-fns';
+import { Project, TaskList, Task} from './classes.js';
 import logoImg from './assets/images/logo.svg';
 import inboxImg from './assets/images/inbox.svg';
 import todayImg from './assets/images/today.svg';
@@ -26,19 +17,22 @@ import trash from './assets/images/trash.svg';
 
 const content = document.getElementById('content');
 const contentHeader = document.getElementById('contentHeader');
-/*
-let inboxTaskList = document.createElement('div');
-inboxTaskList.setAttribute('class', 'taskList');
-*/
 const sideBar = document.getElementById('sideBar');
 const logo = document.getElementById('logo');
 const contentImg = document.getElementById('contentImg');
 const footerImg = document.getElementById('footerImg');
 const addTask = document.getElementById('addTask');
 let taskListStorage = [];
+let tasks = [];
 let projectId = "";
-createTaskList('inbox');
+//variable that stores the value of a tasks date
+let taskDateValue = "";
+//array that stores the selected dates for all tasks
+let taskDates = []
 
+createTaskList('inbox');
+createTaskList('today');
+createTaskList('thisweek');
 
 
 /* FUNCTIONS */
@@ -72,6 +66,8 @@ function revealProjectForm() {
     projectInput.value = "";
 }
 
+
+
 function createTask() {
     //loop through the taskList array
     //until it finds one with its display property set to initial
@@ -88,7 +84,6 @@ function createTask() {
         const taskName = document.createElement('p');
         const taskDate = document.createElement('input');
         const deleteTask = document.createElement('img');
-        
 
         task.classList.add('addTask', 'task');
         taskCheckBox.classList.add('checkBox');
@@ -109,14 +104,61 @@ function createTask() {
         taskRightPanel.appendChild(taskDate);
         taskRightPanel.appendChild(deleteTask);
         taskInput.value = '';
-    
+        
+        let taskInstance = new Task(taskName.textContent, undefined, false);
+
+
+        //gets the current date of the task that a date was just chosen for
+        taskDate.addEventListener('change', () => {
+            taskDateValue = taskDate.value;
+            taskInstance.dueDate = taskDateValue
+            checkDate();   
+            tasks.push(taskInstance);
+            taskDates.push(new Date(taskDateValue));
+            
+        });
+
         taskCheckBox.addEventListener('click', () => {
-          taskCheckBox.style.backgroundColor = taskCheckBox.style.backgroundColor === 'rgb(76, 175, 80)' ? 'transparent' : 'rgb(76, 175, 80)';
+          if (taskInstance.isComplete == false) {
+            taskInstance.isComplete = true;
+            taskCheckBox.style.backgroundColor = 'rgb(76, 175, 80)';
+            console.log(taskInstance);
+          } else {
+            taskInstance.isComplete = false;
+            taskCheckBox.style.backgroundColor = 'transparent';
+            console.log(taskInstance);
+          }
+          
         });
     
         deleteTask.addEventListener('click', () => {
           task.remove();
+          //not working - delete corresponding task from array if its deleted from the page
+          for (let i = 0; i < tasks.length; i++) {
+            console.log(tasks);
+            if (tasks[i].name == taskName.textContent) {
+                tasks[i].remove();
+                console.log(tasks);
+            } else {
+                // do nothing
+            }
+          }
         });
+
+        // function checks if dueDate of a task is set for Today or This Week
+        // then removes them from inbox and appends them to the Today or This Week section
+        function checkDate() {
+            let parsedDate = parseISO(taskInstance.dueDate);
+            let isDateToday = isToday(parsedDate);
+            let isDateThisWeek = isThisWeek(parsedDate);
+            if (isDateToday == true) {
+                document.getElementById('taskList_today').appendChild(task);
+            } else if (isDateThisWeek == true) {
+                document.getElementById('taskList_thisweek').appendChild(task);
+            } else {
+                document.getElementById('taskList_inbox').appendChild(task);
+            }
+        }
       }
 }
 
@@ -124,13 +166,14 @@ function createProject() {
     if (projectInput.value === '') {
         alert('You must name your project.');
       } else {
+        let projectInstance = new Project(projectInput.value, projectInput.value);
         const project = document.createElement('div');
         project.classList.add('navBtn', 'projectBtn');
         const projectLeft = document.createElement('div');
         const projectImg = document.createElement('img');
         projectImg.setAttribute('src', checklist);
         const projectText = document.createElement('button');
-        projectText.textContent = projectInput.value;
+        projectText.textContent = projectInstance.name;
         const deleteProject = document.createElement('img');
         deleteProject.setAttribute('src', trash);
     
@@ -145,15 +188,15 @@ function createProject() {
         addProject.querySelector('button').classList.remove('bold');
         navBtns = getNavBtns();
         updateLoop();
-        project.setAttribute("id", projectInput.value);
-        createTaskList(projectInput.value);
+        project.setAttribute("id", projectInstance.projectId);
+        createTaskList(projectInstance.projectId);
 
         deleteProject.addEventListener('click', () => {
           project.classList.add('delete');
           project.remove();
           //loops through task Lists and deletes the one that correlates with the deleted project
           for (let i = 0; i < taskListStorage.length; i++) {
-            if (taskListStorage[i].id.includes(projectId)) {
+            if (taskListStorage[i].id.includes(projectInstance.projectId)) {
                 taskListStorage[i].remove();
             }
           } 
@@ -163,9 +206,10 @@ function createProject() {
 
 //creates a new taskList based on the selected project in the createProject function
 function createTaskList(projectId) {
+    let taskListInstance = new TaskList("taskList_"+projectId);
     const taskList = document.createElement('div');
     taskList.classList.add('taskList');
-    taskList.setAttribute('id', `taskList_${projectId}`);
+    taskList.setAttribute('id', taskListInstance.taskListId);
     if (projectId === 'inbox') {
         taskList.style.display = 'initial';
     } else {
@@ -175,8 +219,6 @@ function createTaskList(projectId) {
     content.insertBefore(taskList, addTask);
     taskListStorage.push(taskList);
 }
-
-
 
 
 ////FIND OUT HOW TO ACCESS PROJECT ID VARIABLE IN SHOWTASKLIST FUNCTION////
@@ -272,6 +314,13 @@ function updateLoop() {
                 addProject.style.display = "flex";
                 taskInput.value = "";
                 hideAllTaskLists();
+                for (let i = 0; i < taskListStorage.length; i++) {
+                    if (taskListStorage[i].id.includes('today')) {
+                        taskListStorage[i].style.display = "initial";
+                    } else {
+                        taskListStorage[i].style.display = "none";
+                    }
+                }
             } else if (navBtn.getAttribute("id") == "thisweek") {
                 contentHeader.textContent = "This Week";
                 contentHeader.style.display = "initial";
@@ -281,6 +330,13 @@ function updateLoop() {
                 addProject.style.display = "flex";
                 taskInput.value = "";
                 hideAllTaskLists();
+                for (let i = 0; i < taskListStorage.length; i++) {
+                    if (taskListStorage[i].id.includes('thisweek')) {
+                        taskListStorage[i].style.display = "initial";
+                    } else {
+                        taskListStorage[i].style.display = "none";
+                    }
+                }
             } else if (navBtn.classList.contains('projectBtn')) {
                 contentHeader.textContent = navBtn.querySelector('button').textContent;
                 navBtns = getNavBtns();
@@ -397,4 +453,11 @@ projectAddBtn.addEventListener('click', () => {
   
 
 
-//EVEYRTHING WORKS, JUST MAKE SURE TO DELETE TASK LISTS IF THEIR CORRESPONDING PROJECT IS DELETED
+//If a task was created inside of a project, and its moved to the today or this week section
+//because of its due date, make sure that taskname ends with (projectNameHere)
+//for example if i created a task called "Cook Dinner" in the "Home" project
+//and it gets moved to the "this week" section because of its due date, 
+//make sure the task gets renamed to "Cook Dinner (Home)"
+//if the date is changed so it doesnt fall under the today or this week sections, 
+//make sure to move it back to the original projects taskList and remove the 
+//(projectNameHere) from its name
