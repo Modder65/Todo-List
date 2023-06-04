@@ -27,8 +27,8 @@ let tasks = [];
 let projectId = "";
 //variable that stores the value of a tasks date
 let taskDateValue = "";
-//array that stores the selected dates for all tasks
-let taskDates = []
+
+
 
 createTaskList('inbox');
 createTaskList('today');
@@ -114,7 +114,7 @@ function createTask() {
             taskInstance.dueDate = taskDateValue
             checkDate();   
             tasks.push(taskInstance);
-            taskDates.push(new Date(taskDateValue));
+            
             
         });
 
@@ -137,7 +137,7 @@ function createTask() {
           for (let i = 0; i < tasks.length; i++) {
             console.log(tasks);
             if (tasks[i].name == taskName.textContent) {
-                tasks[i].remove();
+                tasks[i].remove(); //doesnt work fix
                 console.log(tasks);
             } else {
                 // do nothing
@@ -219,12 +219,6 @@ function createTaskList(projectId) {
     content.insertBefore(taskList, addTask);
     taskListStorage.push(taskList);
 }
-
-
-////FIND OUT HOW TO ACCESS PROJECT ID VARIABLE IN SHOWTASKLIST FUNCTION////
-////CREATETASKLIST FUNCTION IS CALLED INSIDE THE CREATEPROJECT FUNCTION////
-////SO A UNIQUE TASK LIST IS CREATED EVERYTIME A NEW FUNCTION IS CREATED////
-////SHOWTASKLIST FUNCTION MUST BE CALLED INSIDE UPDATELOOP FUNCTION WHEN A PROJECT IS SELECTED////
 
 
 /* IMAGE LAYOUT */
@@ -461,3 +455,6 @@ projectAddBtn.addEventListener('click', () => {
 //if the date is changed so it doesnt fall under the today or this week sections, 
 //make sure to move it back to the original projects taskList and remove the 
 //(projectNameHere) from its name
+
+//1 shared tasklist
+//filter by date, and projectId

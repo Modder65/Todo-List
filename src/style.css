@@ -63,6 +63,7 @@
 body {
     margin: 0;
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
 header {
@@ -329,9 +330,12 @@ input[type="date"] {
     padding: 8px 12px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    color: #333333;
     background-color: #ffffff;
     cursor: pointer;
+    color: black;
+    font-family: var(--content-Font);
+    font-weight: bold;
+    font-size: 1.05rem;
 }
 
 input[type="date"]::-webkit-inner-spin-button,
@@ -345,8 +349,13 @@ input[type="date"]:focus {
 }
 
 input[type="date"]::placeholder {
-    color: #999999;
+    color: black;
 }
+
+::placeholder {
+    color: black;
+}
+
 
 .checkBox {
     width: 25px;
@@ -362,4 +371,20 @@ input[type="date"]::placeholder {
 
 .task:hover img {
     opacity: 1;
+}
+
+::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+    color: rgba(var(black), 1)!important;
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color: rgba(var(black), 1)!important;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color: rgba(var(black), 1)!important;
+}
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: rgba(var(black), 1)!important;
+}
+::-ms-input-placeholder { /* Microsoft Edge */
+    color: rgba(var(black), 1)!important;
 }
