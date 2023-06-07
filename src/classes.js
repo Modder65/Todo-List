@@ -6,8 +6,8 @@ export class Project {
 }
 
 export class TaskList {
-    constructor(taskListId) {
-        this.taskListId = taskListId;
+    constructor(name) {
+        this.name = name;
     }
 }
 

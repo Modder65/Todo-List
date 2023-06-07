@@ -2,7 +2,7 @@
 
 import './style.css';
 import { isToday, isThisWeek, parseISO} from 'date-fns';
-import { Project, TaskList, Task} from './classes.js';
+import { Project, TaskList, Task } from './classes.js';
 import logoImg from './assets/images/logo.svg';
 import inboxImg from './assets/images/inbox.svg';
 import todayImg from './assets/images/today.svg';
@@ -13,6 +13,68 @@ import checklist from './assets/images/checklist.svg';
 import trash from './assets/images/trash.svg';
 
 
+/* LOCALSTORAGE */
+
+//checks if this is the first time the page is loading
+//only retrieve the stored data if this isnt the first page load
+const isFirstLoad = !localStorage.getItem('isPageLoaded');
+localStorage.setItem('isPageLoaded', true);
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (!isFirstLoad) {
+        retrieveSavedTasks();
+        retrieveSavedProjects();
+    }
+});
+
+function saveTasks() {
+    const storageElement = document.querySelector('#taskList');
+    const storageElementContents = storageElement.outerHTML;
+    localStorage.setItem('savedTaskList', storageElementContents);
+}
+
+function retrieveSavedTasks() {
+    const retrievedStorage = localStorage.getItem('savedTaskList');
+
+    if (retrievedStorage) {
+        const tempElement = document.createElement('div');
+        tempElement.innerHTML = retrievedStorage;
+
+        const retrievedDiv = tempElement.firstChild;
+
+        content.insertBefore(retrievedDiv, document.querySelector('#addTask'));
+    }
+}
+
+
+function saveProjects() {
+    let projectBtns = document.querySelectorAll('.projectBtn');
+    let projectBtnsHTML = [];
+
+    projectBtns.forEach(project => {
+        projectBtnsHTML.push(project.outerHTML);
+    });
+
+    localStorage.setItem('projectBtns', JSON.stringify(projectBtnsHTML));
+}
+
+function retrieveSavedProjects() {
+    let projectBtnsJSON = localStorage.getItem('projectBtns');
+
+    if (projectBtnsJSON) {
+        let projectBtnsHTML = JSON.parse(projectBtnsJSON);
+
+        projectBtnsHTML.forEach(project => {
+            let element = document.createElement('div');
+            element.innerHTML = project;
+
+            sideBar.insertBefore(element, addProject);
+        });
+    } else {
+        // do nothing
+    }
+}
+
 /* GLOBAL VARIABLES */
 
 const content = document.getElementById('content');
@@ -22,20 +84,76 @@ const logo = document.getElementById('logo');
 const contentImg = document.getElementById('contentImg');
 const footerImg = document.getElementById('footerImg');
 const addTask = document.getElementById('addTask');
-let taskListStorage = [];
-let tasks = [];
+let taskInstances = []; //tied to instances of class task
+let tasks = []; //tied to the task UI elements
 let projectId = "";
 //variable that stores the value of a tasks date
-let taskDateValue = "";
+let taskDateValue = ""
+//creates shared task list
+createTaskList();
 
-
-
-createTaskList('inbox');
-createTaskList('today');
-createTaskList('thisweek');
 
 
 /* FUNCTIONS */
+
+//accesses all elements with the class navBtn dynamically
+function getNavBtns() {
+    return document.querySelectorAll('.navBtn');
+}
+let navBtns = getNavBtns();
+
+function getProjects() {
+    return document.querySelectorAll('.projectBtn');
+}
+let projects = getProjects();
+
+
+
+function updateInboxTasks() {
+    for (let i = 0; i < tasks.length; i++) {
+        if (tasks[i].classList.contains("task_inbox")) {
+            tasks[i].style.display = "flex";
+        } else {
+            tasks[i].style.display = "none";
+        }
+    }
+}
+
+function updateTodaysTasks() {
+    for (let i = 0; i < tasks.length; i++) {
+        if (tasks[i].classList.contains("task_today")) {
+            tasks[i].style.display = "flex";
+        } else {
+            tasks[i].style.display = "none";
+        }
+    }
+}
+
+function updateThisWeeksTasks() {
+    for (let i = 0; i < tasks.length; i++) {
+        if (tasks[i].classList.contains("task_thisweek") || tasks[i].classList.contains("task_today")) {
+            tasks[i].style.display = "flex";
+        } else {
+            tasks[i].style.display = "none";
+        }
+    }
+}
+
+function updateProjectTasks() {
+    projects = getProjects();
+    projects.forEach(proj => {
+        if (proj.classList.contains('selected')) {
+            for (let i = 0; i < tasks.length; i++) {
+                if (tasks[i].classList.contains("task_"+proj.id)) {
+                    tasks[i].style.display = "flex";
+                } else {
+                    tasks[i].style.display = "none";
+                }
+            }
+        }
+    });
+    
+}
 
 function hideTaskForm() {
     taskInput.value = "";
@@ -67,7 +185,6 @@ function revealProjectForm() {
 }
 
 
-
 function createTask() {
     //loop through the taskList array
     //until it finds one with its display property set to initial
@@ -84,19 +201,14 @@ function createTask() {
         const taskName = document.createElement('p');
         const taskDate = document.createElement('input');
         const deleteTask = document.createElement('img');
-
+        
+        
         task.classList.add('addTask', 'task');
         taskCheckBox.classList.add('checkBox');
         taskName.textContent = taskInput.value;
         taskDate.setAttribute('type', 'date');
         deleteTask.setAttribute('src', trash);
-        for (let i = 0; i < taskListStorage.length; i++) {
-            if (taskListStorage[i].style.display === 'initial') {
-                taskListStorage[i].appendChild(task);
-            } else {
-                // do nothing
-            }
-        }
+        document.querySelector('#taskList').appendChild(task);
         task.appendChild(taskLeftPanel);
         task.appendChild(taskRightPanel);
         taskLeftPanel.appendChild(taskCheckBox);
@@ -105,17 +217,37 @@ function createTask() {
         taskRightPanel.appendChild(deleteTask);
         taskInput.value = '';
         
-        let taskInstance = new Task(taskName.textContent, undefined, false);
+        //adds task_inbox class to any task that was created while the inbox section was selected
+        if (document.querySelector('#inbox').classList.contains('selected')) {
+            task.classList.add('task_inbox');
+            taskName.textContent += ` (inbox)`;
+        } else {
+            projects = getProjects();
+            projects.forEach(proj => {
+                 if (proj.classList.contains('selected')) {
+                    console.log('hello');
+                    projectId = proj.getAttribute('id');
+                    task.classList.add('task_'+projectId);
+                    taskName.textContent += ` (${projectId})`;
+                }
+             });
+        }
 
+        let taskInstance = new Task(taskName.textContent, undefined, false);
+        taskInstances.push(taskInstance);
+        tasks.push(task);
+        console.log(tasks);
+        console.log(taskInstances);
+        
+        //saveTasks();
 
         //gets the current date of the task that a date was just chosen for
         taskDate.addEventListener('change', () => {
             taskDateValue = taskDate.value;
             taskInstance.dueDate = taskDateValue
-            checkDate();   
-            tasks.push(taskInstance);
-            
-            
+            console.log(tasks);
+            console.log(taskInstances);
+            checkDate();
         });
 
         taskCheckBox.addEventListener('click', () => {
@@ -131,18 +263,18 @@ function createTask() {
           
         });
     
-        deleteTask.addEventListener('click', () => {
-          task.remove();
+        deleteTask.addEventListener('click', (event) => {
           //not working - delete corresponding task from array if its deleted from the page
-          for (let i = 0; i < tasks.length; i++) {
-            console.log(tasks);
-            if (tasks[i].name == taskName.textContent) {
-                tasks[i].remove(); //doesnt work fix
-                console.log(tasks);
-            } else {
-                // do nothing
+            for (let i = 0; i < tasks.length; i++) {
+                if (taskInstances[i].name == taskName.textContent) {
+                    taskInstances.splice(i, 1); 
+                    console.log(taskInstances);
+                } else {
+                    // do nothing
+                }
+                    task.remove();
+                    //saveTasks();
             }
-          }
         });
 
         // function checks if dueDate of a task is set for Today or This Week
@@ -152,11 +284,22 @@ function createTask() {
             let isDateToday = isToday(parsedDate);
             let isDateThisWeek = isThisWeek(parsedDate);
             if (isDateToday == true) {
-                document.getElementById('taskList_today').appendChild(task);
+                task.classList.add("task_today");
+                task.classList.add("task_thisweek");
+                document.querySelector('#taskList').appendChild(task);
             } else if (isDateThisWeek == true) {
-                document.getElementById('taskList_thisweek').appendChild(task);
+                task.classList.remove("task_today");
+                //checks if the task already contains the class thisweek if the first if statement previously ran
+                if (!task.classList.contains('task_thisweek')) {
+                    task.classList.add("task_thisweek");
+                } else {
+                    // do nothing
+                }
+                document.querySelector('#taskList').appendChild(task);
             } else {
-                document.getElementById('taskList_inbox').appendChild(task);
+                task.classList.remove("task_today");
+                task.classList.remove("task_thisweek");
+                document.querySelector('#taskList').appendChild(task);
             }
         }
       }
@@ -191,35 +334,22 @@ function createProject() {
         project.setAttribute("id", projectInstance.projectId);
         createTaskList(projectInstance.projectId);
 
+        saveProjects();
+
         deleteProject.addEventListener('click', () => {
           project.classList.add('delete');
           project.remove();
-          //loops through task Lists and deletes the one that correlates with the deleted project
-          for (let i = 0; i < taskListStorage.length; i++) {
-            if (taskListStorage[i].id.includes(projectInstance.projectId)) {
-                taskListStorage[i].remove();
-            }
-          } 
         });
       }
 }
 
-//creates a new taskList based on the selected project in the createProject function
-function createTaskList(projectId) {
-    let taskListInstance = new TaskList("taskList_"+projectId);
+//creates a new taskList 
+function createTaskList() {
+    let taskListInstance = new TaskList("taskList");
     const taskList = document.createElement('div');
-    taskList.classList.add('taskList');
-    taskList.setAttribute('id', taskListInstance.taskListId);
-    if (projectId === 'inbox') {
-        taskList.style.display = 'initial';
-    } else {
-        // do nothing
-    }
-    //append the task list to the task container
+    taskList.setAttribute("id", taskListInstance.name);
     content.insertBefore(taskList, addTask);
-    taskListStorage.push(taskList);
 }
-
 
 /* IMAGE LAYOUT */
 
@@ -249,25 +379,7 @@ imageElements.forEach((imageElement, index) => {
 /* CREATING & APPENDING ELEMENTS */
 //content.insertBefore(inboxTaskList, document.getElementById('addTask'));
 
-//accesses all elements with the class navBtn dynamically
-function getNavBtns() {
-    return document.querySelectorAll('.navBtn');
-}
-let navBtns = getNavBtns();
 
-//accesses all taskLists and returns them
-function getTaskLists() {
-    return document.querySelectorAll('.taskList');
-}
-let taskLists = getTaskLists();
-
-//updates to recieve any new taskLists that were created and hides them all
-function hideAllTaskLists() {
-    taskLists = getTaskLists();
-    taskLists.forEach(taskList => {
-        taskList.style.display = 'none';
-    });
-}
 
 
 
@@ -291,14 +403,8 @@ function updateLoop() {
                 projectForm.style.display = "none";
                 addProject.style.display = "flex";
                 addTask.style.display = "flex";
-                hideAllTaskLists();
-                for (let i = 0; i < taskListStorage.length; i++) {
-                    if (taskListStorage[i].id.includes('inbox')) {
-                        taskListStorage[i].style.display = "initial";
-                    } else {
-                        taskListStorage[i].style.display = "none";
-                    }
-                }
+                updateInboxTasks();
+                
             } else if (navBtn.getAttribute("id") == "today") {
                 contentHeader.textContent = "Today"
                 contentHeader.style.display = "initial";
@@ -307,14 +413,7 @@ function updateLoop() {
                 projectForm.style.display = "none";
                 addProject.style.display = "flex";
                 taskInput.value = "";
-                hideAllTaskLists();
-                for (let i = 0; i < taskListStorage.length; i++) {
-                    if (taskListStorage[i].id.includes('today')) {
-                        taskListStorage[i].style.display = "initial";
-                    } else {
-                        taskListStorage[i].style.display = "none";
-                    }
-                }
+                updateTodaysTasks();
             } else if (navBtn.getAttribute("id") == "thisweek") {
                 contentHeader.textContent = "This Week";
                 contentHeader.style.display = "initial";
@@ -323,27 +422,12 @@ function updateLoop() {
                 projectForm.style.display = "none";
                 addProject.style.display = "flex";
                 taskInput.value = "";
-                hideAllTaskLists();
-                for (let i = 0; i < taskListStorage.length; i++) {
-                    if (taskListStorage[i].id.includes('thisweek')) {
-                        taskListStorage[i].style.display = "initial";
-                    } else {
-                        taskListStorage[i].style.display = "none";
-                    }
-                }
+                updateThisWeeksTasks();
             } else if (navBtn.classList.contains('projectBtn')) {
                 contentHeader.textContent = navBtn.querySelector('button').textContent;
                 navBtns = getNavBtns();
-                updateLoop();
-                hideAllTaskLists();
-                projectId = navBtn.getAttribute('id');
-                for (let i = 0; i < taskListStorage.length; i++) {
-                    if (taskListStorage[i].id.includes(projectId)) {
-                        taskListStorage[i].style.display = "initial";
-                    } else {
-                        taskListStorage[i].style.display = "none";
-                    }
-                }
+                updateProjectTasks();
+
                 if (navBtn.classList.contains('delete')) {
                     addTask.style.display = "none";
                     contentHeader.style.display = "none";
@@ -425,6 +509,7 @@ addProject.addEventListener('click', () => {
 
 addBtn.addEventListener('click', () => {
     createTask();
+    saveTasks();
 });
   
 
@@ -446,15 +531,9 @@ projectAddBtn.addEventListener('click', () => {
 });
   
 
+    
 
-//If a task was created inside of a project, and its moved to the today or this week section
-//because of its due date, make sure that taskname ends with (projectNameHere)
-//for example if i created a task called "Cook Dinner" in the "Home" project
-//and it gets moved to the "this week" section because of its due date, 
-//make sure the task gets renamed to "Cook Dinner (Home)"
-//if the date is changed so it doesnt fall under the today or this week sections, 
-//make sure to move it back to the original projects taskList and remove the 
-//(projectNameHere) from its name
 
-//1 shared tasklist
-//filter by date, and projectId
+//still have to save projects with localstorage
+//save the taskInstance and task arrays
+//and save the event listeners with localstorage
