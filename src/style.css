@@ -76,6 +76,12 @@ header {
 #headerContent {
     margin-left: 8px;
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#headerContent div {
+    display: flex;
     align-items: center;
     gap: 10px;
 }
@@ -83,6 +89,10 @@ header {
 #headerContent img {
     width: 75px;
     height: auto;
+}
+
+#menu {
+    display: none;
 }
 
 h1 {
@@ -110,6 +120,7 @@ button {
     color: #373737;
     width: 22%;
     padding: 15px;
+    min-width: 250px;
 }
 
 nav {
@@ -387,4 +398,55 @@ input[type="date"]::placeholder {
 }
 ::-ms-input-placeholder { /* Microsoft Edge */
     color: rgba(var(black), 1)!important;
+}
+
+
+/* MEDIA QUERIES */
+@media screen and (max-width: 800px) {
+    #menu {
+        display: block;
+    }
+
+    main {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    #sideBar {
+        display: none;
+        width: 100%;
+        padding: 30px;
+    }
+
+    #contentContainer {
+        width: 100%;
+        padding: 30px;
+        min-height: 100vh;
+    }
+
+    #content {
+        width: 100%;
+        margin: 0;
+        
+    }
+
+    input[type="date"] {
+        width: 125px;
+        height: 25px;
+        font-size: 0.9rem;
+    }
+
+    .task {
+        height: 50px;
+    }
+
+    .task div:first-child p {
+        font-size: 0.9rem;
+    }
+}
+
+@media screen and (min-width: 800px) {
+    #sideBar {
+        display: block!important;
+    }
 }

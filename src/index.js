@@ -11,9 +11,11 @@ import addImg from './assets/images/add.svg';
 import githubImg from './assets/images/github.svg';
 import checklist from './assets/images/checklist.svg';
 import trash from './assets/images/trash.svg';
+import menuImg from './assets/images/menu.svg';
 
 
-/* LOCALSTORAGE */
+
+/* LOCALSTORAGE 
 
 //checks if this is the first time the page is loading
 //only retrieve the stored data if this isnt the first page load
@@ -24,8 +26,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!isFirstLoad) {
         retrieveSavedTasks();
         retrieveSavedProjects();
+        //allows projects saved in localstorage to be selected after page is reloaded 
+        navBtns = getNavBtns();
+        updateLoop();
+        projDeleteBtns = getProjDeleteBtns();
+        projDeleteBtns.forEach(btn => {
+            btn.addEventListener('click', (event) => {
+                event.target.parentNode.remove();
+                localStorage.removeItem(btn);
+            });
+        });
+
+        taskDeleteBtns = getTaskDeleteBtns();
+        taskDeleteBtns.forEach(btn => {
+            btn.addEventListener('click', (event) => {
+                event.target.parentNode.parentNode.remove();
+                localStorage.removeItem(btn);
+            });
+        });
     }
 });
+
 
 function saveTasks() {
     const storageElement = document.querySelector('#taskList');
@@ -67,23 +88,26 @@ function retrieveSavedProjects() {
         projectBtnsHTML.forEach(project => {
             let element = document.createElement('div');
             element.innerHTML = project;
-
             sideBar.insertBefore(element, addProject);
         });
     } else {
         // do nothing
     }
+
 }
+*/
 
 /* GLOBAL VARIABLES */
-
+const main = document.querySelector('main');
 const content = document.getElementById('content');
 const contentHeader = document.getElementById('contentHeader');
 const sideBar = document.getElementById('sideBar');
 const logo = document.getElementById('logo');
+const menu = document.getElementById('menu');
 const contentImg = document.getElementById('contentImg');
 const footerImg = document.getElementById('footerImg');
 const addTask = document.getElementById('addTask');
+const deleteProject = document.querySelectorAll('.deleteProject');
 let taskInstances = []; //tied to instances of class task
 let tasks = []; //tied to the task UI elements
 let projectId = "";
@@ -107,7 +131,15 @@ function getProjects() {
 }
 let projects = getProjects();
 
+function getProjDeleteBtns() {
+    return document.querySelectorAll('.deleteProject');
+}
+let projDeleteBtns = getProjDeleteBtns();
 
+function getTaskDeleteBtns() {
+    return document.querySelectorAll('.deleteTask');
+}
+let taskDeleteBtns = getTaskDeleteBtns();
 
 function updateInboxTasks() {
     for (let i = 0; i < tasks.length; i++) {
@@ -208,6 +240,7 @@ function createTask() {
         taskName.textContent = taskInput.value;
         taskDate.setAttribute('type', 'date');
         deleteTask.setAttribute('src', trash);
+        deleteTask.setAttribute('class', 'deleteTask');
         document.querySelector('#taskList').appendChild(task);
         task.appendChild(taskLeftPanel);
         task.appendChild(taskRightPanel);
@@ -318,6 +351,7 @@ function createProject() {
         const projectText = document.createElement('button');
         projectText.textContent = projectInstance.name;
         const deleteProject = document.createElement('img');
+        deleteProject.setAttribute('class', 'deleteProject');
         deleteProject.setAttribute('src', trash);
     
         project.appendChild(projectLeft);
@@ -335,6 +369,7 @@ function createProject() {
         createTaskList(projectInstance.projectId);
 
         saveProjects();
+        
 
         deleteProject.addEventListener('click', () => {
           project.classList.add('delete');
@@ -354,6 +389,7 @@ function createTaskList() {
 /* IMAGE LAYOUT */
 
 logo.setAttribute("src", logoImg);
+menu.setAttribute("src", menuImg);
 contentImg.setAttribute("src", addImg);
 footerImg.setAttribute("src", githubImg); 
 
@@ -531,7 +567,15 @@ projectAddBtn.addEventListener('click', () => {
 });
   
 
+//reveals sidebar when clicked on mobile
+menu.addEventListener('click', () => {
+    if (sideBar.style.display == 'none') {
+        sideBar.style.display = 'block';
+    } else {
+        sideBar.style.display = 'none';
+    }
     
+});   
 
 
 //still have to save projects with localstorage
