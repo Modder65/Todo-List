@@ -368,7 +368,7 @@ function createProject() {
         project.setAttribute("id", projectInstance.projectId);
         createTaskList(projectInstance.projectId);
 
-        saveProjects();
+        //saveProjects();
         
 
         deleteProject.addEventListener('click', () => {
@@ -545,7 +545,7 @@ addProject.addEventListener('click', () => {
 
 addBtn.addEventListener('click', () => {
     createTask();
-    saveTasks();
+    //saveTasks();
 });
   
 
@@ -568,16 +568,17 @@ projectAddBtn.addEventListener('click', () => {
   
 
 //reveals sidebar when clicked on mobile
+//references the display property in the css file instead of 
+//looking for an inline html style which caused the first clause of the
+//if statement to not run on first click
+let sideBarStyle = window.getComputedStyle(sideBar);
+
 menu.addEventListener('click', () => {
-    if (sideBar.style.display == 'none') {
+    if (sideBarStyle.display == 'none') {
         sideBar.style.display = 'block';
     } else {
         sideBar.style.display = 'none';
     }
-    
 });   
 
 
-//still have to save projects with localstorage
-//save the taskInstance and task arrays
-//and save the event listeners with localstorage

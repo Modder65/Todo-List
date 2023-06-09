@@ -430,6 +430,19 @@ input[type="date"]::placeholder {
         
     }
 
+    
+}
+
+@media screen and (max-width: 450px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    #headerContent img {
+        width: 55px;
+        height: auto;
+    }
+
     input[type="date"] {
         width: 125px;
         height: 25px;
@@ -437,11 +450,17 @@ input[type="date"]::placeholder {
     }
 
     .task {
-        height: 50px;
+        height: 75px;
     }
 
     .task div:first-child p {
-        font-size: 0.9rem;
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    .checkBox {
+        width: 22px;
+        height: 22px;
     }
 }
 
