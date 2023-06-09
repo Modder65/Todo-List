@@ -343,6 +343,7 @@ function createProject() {
         alert('You must name your project.');
       } else {
         let projectInstance = new Project(projectInput.value, projectInput.value);
+        let projectValue = projectInstance.projectId;
         const project = document.createElement('div');
         project.classList.add('navBtn', 'projectBtn');
         const projectLeft = document.createElement('div');
@@ -353,7 +354,9 @@ function createProject() {
         const deleteProject = document.createElement('img');
         deleteProject.setAttribute('class', 'deleteProject');
         deleteProject.setAttribute('src', trash);
-    
+        
+        
+
         project.appendChild(projectLeft);
         project.appendChild(deleteProject);
         projectLeft.appendChild(projectImg);
@@ -374,6 +377,12 @@ function createProject() {
         deleteProject.addEventListener('click', () => {
           project.classList.add('delete');
           project.remove();
+          tasks.forEach(task => {
+            if (task.classList.contains("task_"+projectValue)) {
+                task.remove();
+                taskInstances.splice(task, 1); 
+            }
+          });
         });
       }
 }
