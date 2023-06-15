@@ -15,7 +15,6 @@ import menuImg from './assets/images/menu.svg';
 
 
 
-/* LOCALSTORAGE 
 
 //checks if this is the first time the page is loading
 //only retrieve the stored data if this isnt the first page load
@@ -23,17 +22,67 @@ const isFirstLoad = !localStorage.getItem('isPageLoaded');
 localStorage.setItem('isPageLoaded', true);
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (!isFirstLoad) {
         retrieveSavedTasks();
         retrieveSavedProjects();
+        retrieveSavedDates()
         //allows projects saved in localstorage to be selected after page is reloaded 
         navBtns = getNavBtns();
         updateLoop();
+
+        /*
+        dateInputs = getDateInputs();
+        dateInputs.forEach(date => {
+            date.addEventListener('change', (event) => {
+                taskDateValue = event.target.value;
+                let parsedDate = parseISO(taskDateValue);
+                let isDateToday = isToday(parsedDate);
+                let isDateThisWeek = isThisWeek(parsedDate);
+                if (isDateToday == true) {
+                    let tasks = document.querySelectorAll('.task');
+                    tasks.forEach(task => {
+                        task.classList.add("task_today");
+                        task.classList.add("task_thisweek");
+                        document.querySelector('#taskList').appendChild(task);
+                    });
+                } else if (isDateThisWeek == true) {
+                    let tasks = document.querySelectorAll('.task');
+                    tasks.forEach(task => {
+                        task.classList.remove("task_today");
+                    //checks if the task already contains the class thisweek if the first if statement previously ran
+                        if (!task.classList.contains('task_thisweek')) {
+                        task.classList.add("task_thisweek");
+                        } else {
+                        // do nothing
+                        }
+                        document.querySelector('#taskList').appendChild(task);
+                    });
+                } else {
+                    let tasks = document.querySelectorAll('.task');
+                    tasks.forEach(task => {
+                        task.classList.remove("task_today");
+                        task.classList.remove("task_thisweek");
+                        document.querySelector('#taskList').appendChild(task);
+                    });
+                    
+                }
+                localStorage.removeItem('savedTaskList');
+                saveTasks();
+                localStorage.setItem('savedDates', taskDateValue);
+                let dates = JSON.parse(localStorage.getItem('dates')) || [];
+                dates.push(event.target.value);
+                localStorage.setItem('dates', JSON.stringify(dates));
+            });
+        });
+        */
+
         projDeleteBtns = getProjDeleteBtns();
         projDeleteBtns.forEach(btn => {
             btn.addEventListener('click', (event) => {
                 event.target.parentNode.remove();
-                localStorage.removeItem(btn);
+                localStorage.removeItem('projectBtns');
+                saveProjects();
+                localStorage.removeItem('savedTaskList');
+                saveTasks();
             });
         });
 
@@ -41,31 +90,60 @@ document.addEventListener('DOMContentLoaded', () => {
         taskDeleteBtns.forEach(btn => {
             btn.addEventListener('click', (event) => {
                 event.target.parentNode.parentNode.remove();
-                localStorage.removeItem(btn);
+                localStorage.removeItem('savedTaskList');
+                saveTasks();
             });
         });
-    }
+
+        checkBoxes = getCheckBoxes();
+        checkBoxes.forEach(checkbox => {
+            checkbox.style.backgroundColor = 'transparent'; //changes all checkboxes to transparent color on reload so if statement can run
+            checkbox.addEventListener('click', () => {
+                if (checkbox.style.backgroundColor == 'transparent') {
+                    checkbox.style.backgroundColor = 'rgb(76, 175, 80)';
+                } else {
+                    checkbox.style.backgroundColor = 'transparent'
+                }
+            });
+        });
 });
 
 
 function saveTasks() {
-    const storageElement = document.querySelector('#taskList');
-    const storageElementContents = storageElement.outerHTML;
+    let storageElement = document.querySelector('#taskList');
+    let storageElementContents = storageElement.innerHTML;
     localStorage.setItem('savedTaskList', storageElementContents);
 }
 
+
 function retrieveSavedTasks() {
-    const retrievedStorage = localStorage.getItem('savedTaskList');
-
+    let retrievedStorage = localStorage.getItem('savedTaskList');
+  
     if (retrievedStorage) {
-        const tempElement = document.createElement('div');
-        tempElement.innerHTML = retrievedStorage;
+        let taskList = document.querySelector('#taskList');
+        taskList.innerHTML = retrievedStorage;
+    }
 
-        const retrievedDiv = tempElement.firstChild;
-
-        content.insertBefore(retrievedDiv, document.querySelector('#addTask'));
+    let taskList = document.querySelector('#taskList');
+    for (let i = 0; i < taskList.children.length; i++) {
+        let task = taskList.children[i];
+        task.style.display = "none";
+        if (task.classList.contains('task_inbox')) {
+            task.style.display = "flex";
+        }
     }
 }
+
+function retrieveSavedDates() {
+    let retrievedDates = localStorage.getItem('dates');
+    if (retrievedDates) {
+        let datePicker = document.querySelectorAll('input[type="date"]');
+        datePicker.forEach(date => {
+            date.value = retrievedDates;
+        });
+    }
+}
+
 
 
 function saveProjects() {
@@ -78,6 +156,8 @@ function saveProjects() {
 
     localStorage.setItem('projectBtns', JSON.stringify(projectBtnsHTML));
 }
+
+
 
 function retrieveSavedProjects() {
     let projectBtnsJSON = localStorage.getItem('projectBtns');
@@ -93,9 +173,11 @@ function retrieveSavedProjects() {
     } else {
         // do nothing
     }
-
 }
-*/
+
+
+
+
 
 /* GLOBAL VARIABLES */
 const main = document.querySelector('main');
@@ -108,6 +190,7 @@ const contentImg = document.getElementById('contentImg');
 const footerImg = document.getElementById('footerImg');
 const addTask = document.getElementById('addTask');
 const deleteProject = document.querySelectorAll('.deleteProject');
+let taskId = '';
 let taskInstances = []; //tied to instances of class task
 let tasks = []; //tied to the task UI elements
 let projectId = "";
@@ -141,32 +224,58 @@ function getTaskDeleteBtns() {
 }
 let taskDeleteBtns = getTaskDeleteBtns();
 
+function getDateInputs() {
+    return document.querySelectorAll('input[type="date"]');
+}
+let dateInputs = getDateInputs();
+
+function getCheckBoxes() {
+    return document.querySelectorAll('.checkBox');
+}
+let checkBoxes = getCheckBoxes();
+
 function updateInboxTasks() {
-    for (let i = 0; i < tasks.length; i++) {
-        if (tasks[i].classList.contains("task_inbox")) {
-            tasks[i].style.display = "flex";
+    let taskList = document.querySelector('#taskList');
+    for (let i = 0; i < taskList.children.length; i++) {
+        let task = taskList.children[i];
+        if (task.classList.contains("task_inbox")) {
+            task.style.display = "flex";
         } else {
-            tasks[i].style.display = "none";
+            task.style.display = "none";
         }
     }
 }
 
 function updateTodaysTasks() {
-    for (let i = 0; i < tasks.length; i++) {
-        if (tasks[i].classList.contains("task_today")) {
-            tasks[i].style.display = "flex";
+    let taskList = document.querySelector('#taskList');
+    for (let i = 0; i < taskList.children.length; i++) {
+        let task = taskList.children[i];
+        task.style.display = "none";
+    }
+
+    for (let i = 0; i < taskList.children.length; i++) {
+        let task = taskList.children[i];
+        if (task.classList.contains("task_today")) {
+            task.style.display = "flex";
         } else {
-            tasks[i].style.display = "none";
+            task.style.display = "none";
         }
     }
 }
 
 function updateThisWeeksTasks() {
-    for (let i = 0; i < tasks.length; i++) {
-        if (tasks[i].classList.contains("task_thisweek") || tasks[i].classList.contains("task_today")) {
-            tasks[i].style.display = "flex";
+    let taskList = document.querySelector('#taskList');
+    for (let i = 0; i < taskList.children.length; i++) {
+        let task = taskList.children[i];
+        task.style.display = "none";
+    }
+
+    for (let i = 0; i < taskList.children.length; i++) {
+        let task = taskList.children[i];
+        if (task.classList.contains("task_thisweek") || task.classList.contains("task_today")) {
+            task.style.display = "flex";
         } else {
-            tasks[i].style.display = "none";
+            task.style.display = "none";
         }
     }
 }
@@ -175,11 +284,13 @@ function updateProjectTasks() {
     projects = getProjects();
     projects.forEach(proj => {
         if (proj.classList.contains('selected')) {
-            for (let i = 0; i < tasks.length; i++) {
-                if (tasks[i].classList.contains("task_"+proj.id)) {
-                    tasks[i].style.display = "flex";
+            let taskList = document.querySelector('#taskList');
+            for (let i = 0; i < taskList.children.length; i++) {
+                let task = taskList.children[i];
+                if (task.classList.contains("task_"+proj.id)) {
+                    task.style.display = "flex";
                 } else {
-                    tasks[i].style.display = "none";
+                    task.style.display = "none";
                 }
             }
         }
@@ -216,7 +327,7 @@ function revealProjectForm() {
     projectInput.value = "";
 }
 
-
+let counter = 0;
 function createTask() {
     //loop through the taskList array
     //until it finds one with its display property set to initial
@@ -229,7 +340,7 @@ function createTask() {
         const task = document.createElement('div');
         const taskLeftPanel = document.createElement('div');
         const taskRightPanel = document.createElement('div');
-        const taskCheckBox = document.createElement('span');
+        const taskCheckBox = document.createElement('div');
         const taskName = document.createElement('p');
         const taskDate = document.createElement('input');
         const deleteTask = document.createElement('img');
@@ -239,6 +350,9 @@ function createTask() {
         taskCheckBox.classList.add('checkBox');
         taskName.textContent = taskInput.value;
         taskDate.setAttribute('type', 'date');
+        taskDate.classList.add('taskDate');
+        taskDate.setAttribute('id', counter);
+        counter++;
         deleteTask.setAttribute('src', trash);
         deleteTask.setAttribute('class', 'deleteTask');
         document.querySelector('#taskList').appendChild(task);
@@ -272,15 +386,29 @@ function createTask() {
         console.log(tasks);
         console.log(taskInstances);
         
-        //saveTasks();
+        saveTasks();
 
         //gets the current date of the task that a date was just chosen for
-        taskDate.addEventListener('change', () => {
+        taskDate.addEventListener('change', (event) => {
             taskDateValue = taskDate.value;
             taskInstance.dueDate = taskDateValue
-            console.log(tasks);
-            console.log(taskInstances);
             checkDate();
+            localStorage.removeItem('savedTaskList');
+            saveTasks();
+            /*
+            localStorage.setItem('savedDates', taskDateValue);
+            let dates = JSON.parse(localStorage.getItem('dates')) || [];
+            let existingIndex = dates.findIndex(function(existingDate) {
+                return existingDate.id === event.target.id;
+            });
+
+            if (existingIndex !== -1) {
+                dates[existingIndex].value = event.target.value;
+            } else {
+                dates.push(event.target.value);
+            }
+            localStorage.setItem('dates', JSON.stringify(dates));
+            */
         });
 
         taskCheckBox.addEventListener('click', () => {
@@ -306,7 +434,8 @@ function createTask() {
                     // do nothing
                 }
                     task.remove();
-                    //saveTasks();
+                    localStorage.removeItem('savedTaskList');
+                    saveTasks();
             }
         });
 
@@ -369,18 +498,24 @@ function createProject() {
         navBtns = getNavBtns();
         updateLoop();
         project.setAttribute("id", projectInstance.projectId);
-        createTaskList(projectInstance.projectId);
+        
 
-        //saveProjects();
+        saveProjects();
         
 
         deleteProject.addEventListener('click', () => {
           project.classList.add('delete');
           project.remove();
+          localStorage.removeItem('projectBtns');
+          saveProjects();
+          localStorage.removeItem('savedTaskList');
+          saveTasks();
           tasks.forEach(task => {
             if (task.classList.contains("task_"+projectValue)) {
-                task.remove();
                 taskInstances.splice(task, 1); 
+                task.remove();
+            } else {
+                // do othing
             }
           });
         });
@@ -448,6 +583,7 @@ function updateLoop() {
                 projectForm.style.display = "none";
                 addProject.style.display = "flex";
                 addTask.style.display = "flex";
+                document.querySelector('#taskList').style.display = "block";
                 updateInboxTasks();
                 
             } else if (navBtn.getAttribute("id") == "today") {
@@ -458,6 +594,7 @@ function updateLoop() {
                 projectForm.style.display = "none";
                 addProject.style.display = "flex";
                 taskInput.value = "";
+                document.querySelector('#taskList').style.display = "block";
                 updateTodaysTasks();
             } else if (navBtn.getAttribute("id") == "thisweek") {
                 contentHeader.textContent = "This Week";
@@ -467,10 +604,12 @@ function updateLoop() {
                 projectForm.style.display = "none";
                 addProject.style.display = "flex";
                 taskInput.value = "";
+                document.querySelector('#taskList').style.display = "block";
                 updateThisWeeksTasks();
             } else if (navBtn.classList.contains('projectBtn')) {
                 contentHeader.textContent = navBtn.querySelector('button').textContent;
                 navBtns = getNavBtns();
+                document.querySelector('#taskList').style.display = "block";
                 updateProjectTasks();
 
                 if (navBtn.classList.contains('delete')) {
@@ -480,7 +619,7 @@ function updateLoop() {
                     contentHeader.style.display = "initial";
                     addTask.style.display = "flex";
                 }
-            }
+            } 
         });
     });
 }
@@ -550,6 +689,9 @@ sideBar.appendChild(projectForm);
 
 addProject.addEventListener('click', () => {
     revealProjectForm();
+    contentHeader.style.display = "none";
+    addTask.style.display = "none";
+    document.querySelector('#taskList').style.display = "none";
 });
 
 addBtn.addEventListener('click', () => {
@@ -591,3 +733,4 @@ menu.addEventListener('click', () => {
 });   
 
 
+//DOESNT SAVE CHECKBOX STATUS OR DATES OF TASKS

@@ -322,6 +322,7 @@ footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    /*gap: 10px;*/ 
 }
 
 .task div {
@@ -375,6 +376,7 @@ input[type="date"]::placeholder {
     border-radius: 50%;
 }
 
+/*
 .task img {
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -383,6 +385,7 @@ input[type="date"]::placeholder {
 .task:hover img {
     opacity: 1;
 }
+*/
 
 ::-webkit-input-placeholder { /* WebKit, Blink, Edge */
     color: rgba(var(black), 1)!important;
@@ -427,7 +430,6 @@ input[type="date"]::placeholder {
     #content {
         width: 100%;
         margin: 0;
-        
     }
 
     
@@ -449,13 +451,11 @@ input[type="date"]::placeholder {
         font-size: 0.9rem;
     }
 
-    .task {
-        height: 75px;
-    }
 
     .task div:first-child p {
         font-size: 1rem;
         margin: 0;
+        word-wrap: anywhere;
     }
 
     .checkBox {
