@@ -5,24 +5,19 @@ export class Project {
     }
 }
 
-export class TaskList {
-    constructor(name) {
-        this.name = name;
-    }
-}
-
 export class Task {
-    constructor(name, dueDate, isComplete) {
+    constructor(name, dueDate, isComplete, section) {
         this.name = name;
         this.dueDate = dueDate;
         this.isComplete = isComplete;
+        this.section = section;
     }
 
     toggleComplete() {
-        if (isComplete == false) {
-            isComplete == true;
-        } else if (isComplete == true) {
-            isComplete == false;
+        if (isComplete === false) {
+            isComplete = true;
+        } else if (isComplete === true) {
+            isComplete = false;
         }
     }
 }

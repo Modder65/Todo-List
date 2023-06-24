@@ -141,12 +141,10 @@ nav {
     border: 1px solid transparent;
     border-radius: 5px;
     padding: 5px;
-    pointer-events: auto;
     cursor: pointer;
 }
 
 .navBtn button {
-    pointer-events: auto;
     cursor: pointer;
 }
 
@@ -169,15 +167,6 @@ nav {
 .projectBtn img {
     width: 35px;
     height: auto;
-}
-
-.projectBtn img:nth-child(2) {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.projectBtn:hover img:nth-child(2) {
-    opacity: 1;
 }
 
 .selected {
@@ -213,6 +202,12 @@ nav {
     font-size: 2rem;
 }
 
+/*
+#taskList {
+    display: none;
+}
+*/
+
 .addTask {
     display: flex;
     border: 1px solid transparent;
@@ -240,13 +235,13 @@ nav {
     font-family: var(--content-Font);
 }
 
-.taskForm {
+#taskForm {
     flex-direction: column;
     justify-content: center;
     gap: 10px;
 }
 
-.taskForm input {
+#taskForm input {
     height: 50px;
     border: 1px solid #888888;
     border-radius: 5px;
@@ -254,7 +249,25 @@ nav {
     font-size: 1rem;
 }
 
-.taskForm input:focus {
+#taskForm input:focus {
+    outline: none;
+}
+
+#projectForm {
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+}
+
+#projectForm input {
+    height: 50px;
+    border: 1px solid #888888;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 1rem;
+}
+
+#projectForm input:focus {
     outline: none;
 }
 
@@ -272,6 +285,20 @@ nav {
     cursor: pointer;
 }
 
+.projectFormBtns {
+    height: 50px;
+    justify-content: space-between;
+    gap: 25px;
+}
+
+.projectFormBtns button {
+    height: 50px;
+    border-radius: 5px;
+    flex: 1;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
 .addBtn {
     background-color: #4caf50;
     border: 1px solid #4caf50;
@@ -281,12 +308,30 @@ nav {
     background-color: #66DE70;
 }
 
+.createProjBtn {
+    background-color: #4caf50;
+    border: 1px solid #4caf50;
+}
+
+.createProjBtn:hover {
+    background-color: #66DE70;
+}
+
 .cancelBtn {
     background-color: #ff5252;
     border: 1px solid #ff5252;
 }
 
 .cancelBtn:hover {
+    background-color: #ff7575;
+}
+
+.projectCancelBtn {
+    background-color: #ff5252;
+    border: 1px solid #ff5252;
+}
+
+.projectCancelBtn:hover {
     background-color: #ff7575;
 }
 
@@ -322,7 +367,16 @@ footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    padding: 5px;
+    pointer-events: auto;
+    cursor: pointer;
     /*gap: 10px;*/ 
+}
+
+.task:hover {
+    background-color: #c6c6c6;
 }
 
 .task div {
@@ -335,6 +389,11 @@ footer {
 .task div:first-child p {
     font-family: var(--content-Font);
     font-size: 1.2rem;
+}
+
+.task img {
+    width: 35px;
+    height: auto;
 }
 
 input[type="date"] {
@@ -369,7 +428,7 @@ input[type="date"]::placeholder {
 }
 
 
-.checkBox {
+.checkbox {
     width: 25px;
     height: 25px;
     border: 2px solid #333333;
@@ -401,6 +460,20 @@ input[type="date"]::placeholder {
 }
 ::-ms-input-placeholder { /* Microsoft Edge */
     color: rgba(var(black), 1)!important;
+}
+
+
+/* Hide / Reveal / Disable Elements */
+.hide {
+    display: none;
+}
+
+.reveal {
+    display: flex;
+}
+
+.disable {
+    pointer-events: none;
 }
 
 
