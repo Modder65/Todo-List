@@ -28,6 +28,16 @@ module.exports = {
                     filename: 'assets/fonts/[name][ext]',
                 },
             },
+            {
+                test: /\.js$/i,
+                exclude: /node_modules/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env'],
+                    },
+                },
+            },
         ],
     },
 };

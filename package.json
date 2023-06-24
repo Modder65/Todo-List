@@ -9,6 +9,11 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Modder65/Todo-List.git"
@@ -20,6 +25,9 @@
   },
   "homepage": "https://github.com/Modder65/Todo-List#readme",
   "devDependencies": {
+    "@babel/core": "^7.22.5",
+    "@babel/preset-env": "^7.22.5",
+    "babel-loader": "^9.1.2",
     "css-loader": "^6.8.1",
     "gh-pages": "^5.0.0",
     "style-loader": "^3.3.3",
