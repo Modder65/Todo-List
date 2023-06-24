@@ -32,20 +32,39 @@
                     <img src="" alt="" class="navImg">
                     <button>This Week</button>
                 </div>
+                <div class="navBtn" id="thismonth">
+                    <img src="" alt="" class="navImg">
+                    <button>This Month</button>
+                </div>
             </nav>
             <h2>Projects</h2>
-            <div class="navBtn" id="addProject">
+            <div class="navBtn reveal" id="addProject">
                 <img src="" alt="" class="navImg">
                 <button>Add Project</button>
             </div>
+            <form id="projectForm" class="hide">
+                <input type="text" id="taskname" placeholder="Project Name Here" required>
+                <div class="projectFormBtns hide">
+                    <button type="submit" class="createProjBtn">Add</button>
+                    <button class="projectCancelBtn">Cancel</button>
+                </div>
+            </form>
         </div>
         <div id="contentContainer">
             <div id="content">
-                <h2 id="contentHeader">Inbox</h2>
-                <div id="addTask" class="addTask">
+                <h2 id="contentHeader" class="reveal">Inbox</h2>
+                <div id="taskList"></div>
+                <div id="addTask" class="addTask reveal">
                     <img src="" alt="" id="contentImg">
                     <button>Add Task</button>
                 </div>
+                <form id="taskForm" class="hide">
+                    <input type="text" id="taskname" placeholder="Task Name Here" required>
+                    <div class="formBtns hide">
+                        <button type="submit" class="addBtn">Add</button>
+                        <button class="cancelBtn">Cancel</button>
+                    </div>
+                </form>
             </div>
         </div>
     </main>
